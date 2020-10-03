@@ -7,8 +7,31 @@ listener 80 {
 
 listener 443 {
     proto tls
+    table nf
+    fallback 127.0.0.1:4343
 }
 
 table {
     .* *
+}
+
+table nf{
+netflix.com *:443
+netflix.net *:443
+nflxext.com *:443
+nflximg.com *:443
+nflximg.net *:443
+nflxso.net *:443
+nflxvideo.net *:443
+netflixdnstest0.com *:443
+netflixdnstest1.co *:443
+netflixdnstest2.com *:443
+netflixdnstest3.com *:443
+netflixdnstest4.com *:443
+netflixdnstest5.com *:443
+netflixdnstest6.com *:443
+netflixdnstest7.com *:443
+netflixdnstest8.com *:443
+netflixdnstest9.com *:443
+
 }

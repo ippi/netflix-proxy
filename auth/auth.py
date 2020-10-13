@@ -284,6 +284,7 @@ urls = (
     r'/logout', 'Logout',
     r'/add', 'Add',
     r'/autoadd', 'AutoAdd',
+    r'/autodel', 'AutoDel',
     r'/delete', 'Delete',
     r'/ddns', 'DDNSIndex',
     r'/ddns/add', 'DDNSAdd',
@@ -449,6 +450,35 @@ class AutoAdd:
             if is_ipv4: result = run_ipt_cmd(ipadr, 'I')
             if is_ipv6: result = run_ipt6_cmd(ipadr, 'I')
             web.debug('iptables_update: %s' % [result])
+            return 'OK'
+        except Exception as e:
+            web.debug(traceback.print_exc())
+            return user.ID
+
+
+class AutoDel:
+
+    def GET(self):
+        try:
+            params = web.input(ip=get_client_public_ip())
+            user = validate_user(params.username,params.password)
+            if user is None: return 'Error: login'
+
+            ipadr = params.ip
+            is_ipv4 = web.net.validipaddr(ipadr)
+            is_ipv6 = web.net.validip6addr(ipadr)
+            if is_ipv4 == False and is_ipv6 == False:
+                return 'Error: IP not in right form'
+
+            # userid = int(user.ID)
+            userid = user.ID
+            db_result = db.delete('ipaddrs', where="user_id=%s AND ipaddr='%s'" % (userid, ipadr))
+            web.debug('db.delete: %s' % db_result)
+            if db_result == 0: db_result = 1
+            for i in range(0, db_result):
+                if is_ipv4: result = run_ipt_cmd(ipadr, 'D')
+                if is_ipv6: result = run_ipt6_cmd(ipadr, 'D') 
+                web.debug('iptables_update: %s' % [result])
             return 'OK'
         except Exception as e:
             web.debug(traceback.print_exc())
